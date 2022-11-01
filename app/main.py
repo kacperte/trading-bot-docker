@@ -1,6 +1,7 @@
 import requests
 import redis
-from db import SessionLocal, add_to_new_token_db
+from db import SessionLocal, add_to_new_token_db, engine
+import models
 
 # init Redis
 redis = redis.Redis(host="localhost", port=6379)
@@ -10,6 +11,7 @@ url = "https://www.okx.com/priapi/v5/rubik/app/public/new-coin-rank?t=1661446882
 
 # init Session
 session = SessionLocal()
+models.Base.metadata.create_all(engine)
 
 
 def stream_listener():
