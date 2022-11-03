@@ -1,11 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
+from models import NewToken
 
 conf = {
-    "host": "localhost",
-    "port": "5432",
+    "host": "0.0.0.0",
+    "port": "5431",
     "database": "postgres",
     "user": "myusername",
     "password": "mypassword",
@@ -19,10 +19,8 @@ SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 Base = declarative_base()
 
 
-
-
 def add_to_new_token_db(session, instId, market):
-    new_token = NewToken(instId=instId, market=market, date=datetime.utcnow())
+    new_token = NewToken(instId=instId, market=market)
 
     try:
         session.add(new_token)
@@ -30,8 +28,3 @@ def add_to_new_token_db(session, instId, market):
         session.refresh(new_token)
     finally:
         session.close()
-
-"""
-docker run --name postgresql -e POSTGRES_USER=myusername -e POSTGRES_PASSWORD=mypassword -p 5432:5432 -d postgres
-
-"""

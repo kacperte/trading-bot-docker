@@ -1,0 +1,23 @@
+version: "4.12"
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - common-net
+  redis:
+    image: redis
+    ports:
+      - "6379"
+    networks:
+      - common-net
+  app:
+    image: market-bot-alert
+    networks:
+      - common-net
+
+networks:
+  common-net: {}
+
