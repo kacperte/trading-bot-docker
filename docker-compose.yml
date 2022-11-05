@@ -5,19 +5,13 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-    networks:
-      - common-net
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
   redis:
     image: redis
     ports:
-      - "6379"
-    networks:
-      - common-net
+      - "6379:6379"
   app:
     image: market-bot-alert
-    networks:
-      - common-net
-
-networks:
-  common-net: {}
 

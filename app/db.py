@@ -5,11 +5,11 @@ from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
 
 conf = {
-    "host": "0.0.0.0",
-    "port": "5431",
+    "host": "db",
+    "port": "5432",
     "database": "postgres",
-    "user": "myusername",
-    "password": "mypassword",
+    "user": "postgres",
+    "password": "postgres",
 }
 engine = create_engine(
     "postgresql://{user}:{password}@{host}:{port}/{database}".format(**conf)
@@ -18,6 +18,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
 
 Base = declarative_base()
+
 
 class NewToken(Base):
     __tablename__ = "new_token"
