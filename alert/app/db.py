@@ -1,0 +1,39 @@
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String, DateTime
+from datetime import datetime
+
+conf = {
+    "host": "db",
+    "port": "5432",
+    "database": "postgres",
+    "user": "postgres",
+    "password": "postgres",
+}
+engine = create_engine(
+    "postgresql://{user}:{password}@{host}:{port}/{database}".format(**conf)
+)
+
+SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
+
+Base = declarative_base()
+
+
+class NewToken(Base):
+    __tablename__ = "new_token"
+    id = Column(Integer, primary_key=True)
+    instId = Column(String)
+    market = Column(String)
+    date = Column(DateTime, default=datetime.utcnow())
+
+
+def add_to_new_token_db(session, instId, market):
+    new_token = NewToken(instId=instId, market=market)
+
+    try:
+        session.add(new_token)
+        session.commit()
+        session.refresh(new_token)
+    finally:
+        session.close()
