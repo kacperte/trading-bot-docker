@@ -10,10 +10,12 @@ services:
     ports:
       - "5432:5432"
     restart: always
+
   redis:
     image: redis
     ports:
       - "6379:6379"
+
   alert:
     image: market-bot-alert
     depends_on:
@@ -22,6 +24,7 @@ services:
     volumes:
       - ./alert/app:/code/app
     command: python -u /code/app/main.py
+
   place-order:
     image: market-bot-place-order
     environment:
@@ -34,6 +37,34 @@ services:
       - redis
     volumes:
       - ./place_order/app:/code/app
+    command: python -u /code/app/main.py
+
+  price-checker:
+    image: market-bot-price-checker
+    environment:
+      - APIKEY=${APIKEY}
+      - APISECRET=${APISECRET}
+      - PASS=${PASS}
+      - BASEURL=${BASEURL}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./price_checker/app:/code/app
+    command: python -u /code/app/main.py
+
+  sell-assets:
+    image: market-bot-sell-assets
+    environment:
+      - APIKEY=${APIKEY}
+      - APISECRET=${APISECRET}
+      - PASS=${PASS}
+      - BASEURL=${BASEURL}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./sell_assets/app:/code/app
     command: python -u /code/app/main.py
 
 

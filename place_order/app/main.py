@@ -37,7 +37,12 @@ class PlaceOrder(OkexBot):
                 # set order information
                 order_information = self.get_info_about_last_orders()[0]
                 # publish to redis information about selling strategy
-                parms = [2, 0.8, 0.5, 1]  # %profit/%losses/%profit volumen/%losses volumen
+                parms = [
+                    2,
+                    0.8,
+                    0.5,
+                    1,
+                ]  # %profit/%losses/%profit volumen/%losses volumen
                 parms = " ".join([str(i) for i in parms])
                 self.client.publish("new_position", parms)
                 # post to db inforamtion
@@ -54,7 +59,7 @@ class PlaceOrder(OkexBot):
 if __name__ == "__main__":
     # use loop to listen new message
     while True:
-        print("LISTEN FOR NEW MESSAGE")
+        print("LISTEN FOR NEW MESSAGE - PLACE ORDER")
         sub = redis.pubsub()
         sub.subscribe("token")
         for message in sub.listen():
