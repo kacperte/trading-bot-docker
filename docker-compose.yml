@@ -2,6 +2,7 @@ version: "3.9"
 services:
   db:
     image: postgres
+    hostname: db-bot
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -15,7 +16,24 @@ services:
       - "6379:6379"
   alert:
     image: market-bot-alert
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./alert/app:/code/app
+    command: python -u /code/app/main.py
   place-order:
     image: market-bot-place-order
+    environment:
+      - APIKEY=${APIKEY}
+      - APISECRET=${APISECRET}
+      - PASS=${PASS}
+      - BASEURL=${BASEURL}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./place_order/app:/code/app
+    command: python -u /code/app/main.py
 
 
