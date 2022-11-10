@@ -2,6 +2,7 @@ import redis
 from okex_bot import OkexBot
 import time
 from db import SessionLocal, add_to_transaction_db, Base, engine
+import os
 
 # init Session
 session = SessionLocal()
@@ -15,13 +16,14 @@ redis = redis.StrictRedis(
 
 class SellAsset(OkexBot):
 
-    def __init__(self, coin_id: str, APIKEY, APISECRET, PASS, BASEURL):
+    def __init__(self, APIKEY, APISECRET, PASS, BASEURL):
         super().__init__(APIKEY, APISECRET, PASS, BASEURL)
-        self.client = redis.Redis(host='localhost', port=6379)
+        self.client = redis
 
     def sell_position(self, coin_id, percentage_of_sales):
-        balnce = self.get_balance(coin_id)
-        volumen_to_sell = balnce * percentage_of_sales
+        print("SELLING POSITION")
+        balance = self.get_balance(coin_id.split('-')[0])
+        volumen_to_sell = float(balance) * percentage_of_sales
         order = self.place_market_order(pair=coin_id, side='sell', amount=volumen_to_sell)
         # wait 1 s for the transaction details to be created
         time.sleep(1)
@@ -47,12 +49,12 @@ if __name__ == "__main__":
         sub.subscribe('sell_asset')
         for message in sub.listen():
             if message['type'] == 'message':
-                parms = str(message.get('data')).split("'")[1].split(" ")
+                parms = str(message.get("data")).split()
                 SellAsset(
-                    APISECRET=APISECRET,
-                    APIKEY=APIKEY,
-                    PASS=PASS,
-                    BASEURL=BASEURL
+                    APISECRET=os.getenv('APISECRET'),
+                    APIKEY=os.getenv('APIKEY'),
+                    PASS=os.getenv('PASS'),
+                    BASEURL=os.getenv('BASEURL')
                 ).sell_position(
                     coin_id=parms[0],
                     percentage_of_sales=float(parms[1]),

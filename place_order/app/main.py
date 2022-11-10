@@ -1,3 +1,4 @@
+import os
 import redis
 from okex_bot import OkexBot
 import time
@@ -20,18 +21,19 @@ class PlaceOrder(OkexBot):
         super().__init__(APIKEY, APISECRET, PASS, BASEURL)
         self.coin_id = coin_id
         self.usdt_balance = self.get_balance("USDT")
-        self.client = redis.Redis(host="redis", port=6379)
+        self.client = redis
 
     # function to open new position with new token
     def open_position(self):
         # using a for loop to perform this operation 10 times if the exchange will block operations
         for _ in range(9):
             # purchase of new token
-            self.place_market_order(
+            order = self.place_market_order(
                 pair=self.coin_id, side="buy", amount=self.usdt_balance
             )
+            print(order)
             # if the purchase was successful, the loop will break
-            if self.get_balance(self.coin_id):
+            if self.get_balance(self.coin_id.split('-')[0]):
                 # wait 1 s for the transaction details to be created
                 time.sleep(1)
                 # set order information
@@ -64,12 +66,11 @@ if __name__ == "__main__":
         sub.subscribe("token")
         for message in sub.listen():
             if message["type"] == "message":
-                coind_id = str(message.get("data")).split("'")[1].split(" ")
-                print(coind_id)
+                coind_id = str(message.get("data"))
                 PlaceOrder(
-                    coin_id=coind_id[0],
-                    APISECRET=APISECRET,
-                    APIKEY=APIKEY,
-                    PASS=PASS,
-                    BASEURL=BASEURL,
-                )
+                    coin_id=coind_id,
+                    APISECRET=os.getenv('APISECRET'),
+                    APIKEY=os.getenv('APIKEY'),
+                    PASS=os.getenv('PASS'),
+                    BASEURL=os.getenv('BASEURL')
+                ).open_position()

@@ -25,7 +25,7 @@ class Transactions(Base):
     id = Column(Integer, primary_key=True)
     side = Column(String)
     ordId = Column(
-        String,
+        String
     )
     instId = Column(String)
     date = Column(DateTime, default=datetime.utcnow())

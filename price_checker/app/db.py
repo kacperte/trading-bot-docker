@@ -22,12 +22,12 @@ Base = declarative_base()
 
 class SaleAlert(Base):
     __tablename__ = "sales_alert"
-    id = Column(Integer, primary_key=True, index=True)
-    type = Column(String, index=True)
-    volumenOfSale = Column(Float, index=True)
-    percent = Column(Float, index=True)
-    price = Column(String, index=True)
-    instId = Column(DateTime, default=datetime.utcnow())
+    id = Column(Integer, primary_key=True)
+    type = Column(String)
+    volumenOfSale = Column(Float)
+    percent = Column(Float)
+    price = Column(Float)
+    instId = Column(String)
     date = Column(DateTime, default=datetime.utcnow())
 
 

@@ -1,14 +1,7 @@
 import redis
 from okex_bot import OkexBot
-from os import getenv
 from db import SessionLocal, add_to_sales_alert_db, Base, engine
-
-
-# OKEX API credentials
-APIKEY = getenv("APIKEY")
-APISECRET = getenv("APISECRET")
-PASS = getenv("PASS")
-BASEURL = getenv("BASEURL")
+import os
 
 # init Session
 session = SessionLocal()
@@ -25,13 +18,14 @@ class PriceChecker(OkexBot):
 
     def __init__(self, APIKEY, APISECRET, PASS, BASEURL):
         super().__init__(APIKEY, APISECRET, PASS, BASEURL)
-        self.client = redis.Redis(host="localhost", port=6379)
+        self.client = redis
         self.order_info = self.get_info_about_last_orders()[0]
         self.usdt_balance = self.get_balance("USDT")
         self.purchase_price = float(self.order_info["fillPx"])
 
     def price_tracking(self, profit, losses, volumen_profit, volumen_losses):
         while True:
+            print("CHECKING PRICE")
             # set current price of token
             current_price = float(self.check_price(self.order_info["instId"]))
             # condition to sell for profit
@@ -50,6 +44,7 @@ class PriceChecker(OkexBot):
                     instId=self.order_info["instId"],
                 )
                 break
+
             # condition to sell for losses
             elif current_price <= self.purchase_price * losses:
                 # publish to redis information to place new order - sell (token_id/volumen_profit)
@@ -76,12 +71,16 @@ if __name__ == "__main__":
         sub.subscribe("new_position")
         for message in sub.listen():
             if message["type"] == "message":
-                parms = str(message.get("data")).split("'")[1].split(" ")
+                parms = str(message.get("data")).split()
                 PriceChecker(
-                    APISECRET=APISECRET, APIKEY=APIKEY, PASS=PASS, BASEURL=BASEURL
+                    APISECRET=os.getenv('APISECRET'),
+                    APIKEY=os.getenv('APIKEY'),
+                    PASS=os.getenv('PASS'),
+                    BASEURL=os.getenv('BASEURL')
                 ).price_tracking(
                     profit=float(parms[0]),
                     losses=float(parms[1]),
                     volumen_profit=float(parms[2]),
                     volumen_losses=float(parms[3]),
                 )
+
